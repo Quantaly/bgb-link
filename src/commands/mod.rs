@@ -1,3 +1,4 @@
+mod tests;
 pub mod typed;
 
 pub use typed::TypedBgbCommand;
@@ -42,56 +43,4 @@ impl RawBgbCommand {
             i1: u32::from_le_bytes(i1_bytes),
         }
     }
-}
-
-#[test]
-fn raw_serialization() {
-    assert_eq!(
-        RawBgbCommand {
-            b1: 1,
-            b2: 2,
-            b3: 3,
-            b4: 4,
-            i1: 5,
-        }
-        .serialize(),
-        [1, 2, 3, 4, 5, 0, 0, 0]
-    );
-
-    assert_eq!(
-        RawBgbCommand {
-            b1: 5,
-            b2: 4,
-            b3: 3,
-            b4: 2,
-            i1: 1 << (8 * 3),
-        }
-        .serialize(),
-        [5, 4, 3, 2, 0, 0, 0, 1]
-    );
-}
-
-#[test]
-fn raw_deserialization() {
-    assert_eq!(
-        RawBgbCommand::deserialize(&[1, 2, 3, 4, 5, 0, 0, 0]),
-        RawBgbCommand {
-            b1: 1,
-            b2: 2,
-            b3: 3,
-            b4: 4,
-            i1: 5,
-        }
-    );
-
-    assert_eq!(
-        RawBgbCommand::deserialize(&[5, 4, 3, 2, 0, 0, 0, 1]),
-        RawBgbCommand {
-            b1: 5,
-            b2: 4,
-            b3: 3,
-            b4: 2,
-            i1: 1 << (8 * 3),
-        }
-    );
 }
