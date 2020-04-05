@@ -10,7 +10,7 @@ pub trait BgbCommand {
 }
 
 /// Contains the raw structure of a BGB command.
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct RawBgbCommand {
     pub b1: u8,
     pub b2: u8,

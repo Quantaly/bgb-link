@@ -2,7 +2,7 @@ use super::*;
 use TypedBgbCommand::*;
 
 /// Particular commands and their relevant data.
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum TypedBgbCommand {
     Version {
         valid: bool,

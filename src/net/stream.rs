@@ -56,4 +56,30 @@ impl BgbStream<TcpStream> {
             Err(io::Error::new(io::ErrorKind::InvalidData, "bad handshake"))
         }
     }
+
+    /// Uses `TcpStream.peek` to check if 8 bytes are available, and if so, reads them and
+    /// interprets the raw data.
+    pub fn maybe_read_raw(&mut self) -> io::Result<Option<RawBgbCommand>> {
+        let mut buf = [0u8; 8];
+        if self.inner.peek(&mut buf)? == 8 {
+            self.inner.read_exact(&mut buf)?;
+            Ok(Some(RawBgbCommand::deserialize(&buf)))
+        } else {
+            Ok(None)
+        }
+    }
+
+    /// As `read` but for `maybe_read_raw` instead of `read_raw`.
+    pub fn maybe_read(&mut self) -> io::Result<Option<TypedBgbCommand>> {
+        println!("Running maybe_read");
+        if let Some(raw) = self.maybe_read_raw()? {
+            match TypedBgbCommand::from_raw(&raw) {
+                Ok(result) => Ok(Some(result)),
+                Err(msg) => Err(io::Error::new(io::ErrorKind::InvalidData, msg)),
+            }
+        } else {
+            println!("There was no command to read");
+            Ok(None)
+        }
+    }
 }
