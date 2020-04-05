@@ -10,7 +10,7 @@ pub struct BgbStream<T: Read + Write> {
 impl<T: Read + Write> BgbStream<T> {
     /// Takes ownership of the given read/writer and uses it for communication.
     ///
-    /// For use over TCP, see [connect].
+    /// For use over TCP, see `connect`.
     pub fn wrap(inner: T) -> BgbStream<T> {
         BgbStream { inner }
     }
@@ -25,7 +25,7 @@ impl<T: Read + Write> BgbStream<T> {
     /// Reads 8 bytes from the connection and interprets them as a command.
     ///
     /// If the command is too malformed to interpret, returns an error of
-    /// kind [InvalidData].
+    /// kind `InvalidData`.
     pub fn read(&mut self) -> io::Result<TypedBgbCommand> {
         match TypedBgbCommand::from_raw(&self.read_raw()?) {
             Ok(result) => Ok(result),
@@ -44,7 +44,7 @@ impl BgbStream<TcpStream> {
     ///
     /// This method also enables TCP_NODELAY, as recommended in the spec, and waits for the handshake to
     /// complete before returning. If the other party provides an invalid handshake, returns an error
-    /// of kind [InvalidData].
+    /// of kind `InvalidData`.
     pub fn connect<A: ToSocketAddrs>(addr: A) -> io::Result<BgbStream<TcpStream>> {
         let inner = TcpStream::connect(addr)?;
         inner.set_nodelay(true)?;
