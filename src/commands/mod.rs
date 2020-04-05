@@ -1,13 +1,13 @@
 pub mod typed;
 
-pub use typed::TypedBGBCommand;
+pub use typed::TypedBgbCommand;
 
-pub trait BGBCommand {
+pub trait BgbCommand {
     fn serialize(&self) -> [u8; 8];
 }
 
 #[derive(Debug, PartialEq)]
-pub struct RawBGBCommand {
+pub struct RawBgbCommand {
     pub b1: u8,
     pub b2: u8,
     pub b3: u8,
@@ -15,7 +15,7 @@ pub struct RawBGBCommand {
     pub i1: u32,
 }
 
-impl BGBCommand for RawBGBCommand {
+impl BgbCommand for RawBgbCommand {
     fn serialize(&self) -> [u8; 8] {
         let i1_bytes = self.i1.to_le_bytes();
         [
@@ -31,10 +31,10 @@ impl BGBCommand for RawBGBCommand {
     }
 }
 
-impl RawBGBCommand {
-    pub fn deserialize(bytes: &[u8; 8]) -> RawBGBCommand {
+impl RawBgbCommand {
+    pub fn deserialize(bytes: &[u8; 8]) -> RawBgbCommand {
         let i1_bytes = [bytes[4], bytes[5], bytes[6], bytes[7]];
-        RawBGBCommand {
+        RawBgbCommand {
             b1: bytes[0],
             b2: bytes[1],
             b3: bytes[2],
@@ -47,7 +47,7 @@ impl RawBGBCommand {
 #[test]
 fn raw_serialization() {
     assert_eq!(
-        RawBGBCommand {
+        RawBgbCommand {
             b1: 1,
             b2: 2,
             b3: 3,
@@ -59,7 +59,7 @@ fn raw_serialization() {
     );
 
     assert_eq!(
-        RawBGBCommand {
+        RawBgbCommand {
             b1: 5,
             b2: 4,
             b3: 3,
@@ -74,8 +74,8 @@ fn raw_serialization() {
 #[test]
 fn raw_deserialization() {
     assert_eq!(
-        RawBGBCommand::deserialize(&[1, 2, 3, 4, 5, 0, 0, 0]),
-        RawBGBCommand {
+        RawBgbCommand::deserialize(&[1, 2, 3, 4, 5, 0, 0, 0]),
+        RawBgbCommand {
             b1: 1,
             b2: 2,
             b3: 3,
@@ -85,8 +85,8 @@ fn raw_deserialization() {
     );
 
     assert_eq!(
-        RawBGBCommand::deserialize(&[5, 4, 3, 2, 0, 0, 0, 1]),
-        RawBGBCommand {
+        RawBgbCommand::deserialize(&[5, 4, 3, 2, 0, 0, 0, 1]),
+        RawBgbCommand {
             b1: 5,
             b2: 4,
             b3: 3,

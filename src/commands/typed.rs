@@ -1,8 +1,8 @@
 use super::*;
-use TypedBGBCommand::*;
+use TypedBgbCommand::*;
 
 #[derive(Debug, PartialEq)]
-pub enum TypedBGBCommand {
+pub enum TypedBgbCommand {
     Version {
         valid: bool,
     },
@@ -31,12 +31,12 @@ pub enum TypedBGBCommand {
     WantDisconnect,
 }
 
-impl TypedBGBCommand {
-    pub fn to_raw(&self) -> RawBGBCommand {
+impl TypedBgbCommand {
+    pub fn to_raw(&self) -> RawBgbCommand {
         match *self {
             Version { valid } => {
                 if valid {
-                    RawBGBCommand {
+                    RawBgbCommand {
                         b1: 1,
                         b2: 1,
                         b3: 4,
@@ -44,7 +44,7 @@ impl TypedBGBCommand {
                         i1: 0,
                     }
                 } else {
-                    RawBGBCommand {
+                    RawBgbCommand {
                         b1: 1,
                         b2: 0,
                         b3: 0,
@@ -56,7 +56,7 @@ impl TypedBGBCommand {
             Joypad {
                 button_number,
                 pressed,
-            } => RawBGBCommand {
+            } => RawBgbCommand {
                 b1: 101,
                 b2: (button_number & 0b111) | (if pressed { 1 << 3 } else { 0 }),
                 b3: 0,
@@ -68,7 +68,7 @@ impl TypedBGBCommand {
                 high_speed,
                 double_speed,
                 timestamp,
-            } => RawBGBCommand {
+            } => RawBgbCommand {
                 b1: 104,
                 b2: data,
                 b3: 0b10000001
@@ -77,21 +77,21 @@ impl TypedBGBCommand {
                 b4: 0,
                 i1: timestamp,
             },
-            Sync2 { data } => RawBGBCommand {
+            Sync2 { data } => RawBgbCommand {
                 b1: 105,
                 b2: data,
                 b3: 0x80,
                 b4: 0,
                 i1: 0,
             },
-            Sync3Response => RawBGBCommand {
+            Sync3Response => RawBgbCommand {
                 b1: 106,
                 b2: 1,
                 b3: 0,
                 b4: 0,
                 i1: 0,
             },
-            Sync3Timestamp { timestamp } => RawBGBCommand {
+            Sync3Timestamp { timestamp } => RawBgbCommand {
                 b1: 106,
                 b2: 0,
                 b3: 0,
@@ -102,7 +102,7 @@ impl TypedBGBCommand {
                 running,
                 paused,
                 support_reconnect,
-            } => RawBGBCommand {
+            } => RawBgbCommand {
                 b1: 108,
                 b2: (if running { 1 << 0 } else { 0 })
                     | (if paused { 1 << 1 } else { 0 })
@@ -111,7 +111,7 @@ impl TypedBGBCommand {
                 b4: 0,
                 i1: 0,
             },
-            WantDisconnect => RawBGBCommand {
+            WantDisconnect => RawBgbCommand {
                 b1: 109,
                 b2: 0,
                 b3: 0,
@@ -121,8 +121,8 @@ impl TypedBGBCommand {
         }
     }
 
-    pub fn from_raw(raw: &RawBGBCommand) -> Result<TypedBGBCommand, &'static str> {
-        let RawBGBCommand { b1, b2, b3, b4, i1 } = *raw;
+    pub fn from_raw(raw: &RawBgbCommand) -> Result<TypedBgbCommand, &'static str> {
+        let RawBgbCommand { b1, b2, b3, b4, i1 } = *raw;
         match b1 {
             1 => Ok(Version {
                 valid: (b2, b3, b4, i1) == (1, 4, 0, 0),
@@ -157,12 +157,12 @@ impl TypedBGBCommand {
         }
     }
 
-    pub fn deserialize(bytes: &[u8; 8]) -> Result<TypedBGBCommand, &'static str> {
-        TypedBGBCommand::from_raw(&RawBGBCommand::deserialize(bytes))
+    pub fn deserialize(bytes: &[u8; 8]) -> Result<TypedBgbCommand, &'static str> {
+        TypedBgbCommand::from_raw(&RawBgbCommand::deserialize(bytes))
     }
 }
 
-impl BGBCommand for TypedBGBCommand {
+impl BgbCommand for TypedBgbCommand {
     fn serialize(&self) -> [u8; 8] {
         self.to_raw().serialize()
     }
@@ -172,7 +172,7 @@ impl BGBCommand for TypedBGBCommand {
 fn typed_to_raw() {
     assert_eq!(
         Version { valid: true }.to_raw(),
-        RawBGBCommand {
+        RawBgbCommand {
             b1: 1,
             b2: 1,
             b3: 4,
@@ -198,7 +198,7 @@ fn typed_to_raw() {
             pressed: true
         }
         .to_raw(),
-        RawBGBCommand {
+        RawBgbCommand {
             b1: 101,
             b2: 0b1_101,
             b3: 0,
@@ -213,7 +213,7 @@ fn typed_to_raw() {
             pressed: false
         }
         .to_raw(),
-        RawBGBCommand {
+        RawBgbCommand {
             b1: 101,
             b2: 0b0_011,
             b3: 0,
@@ -230,7 +230,7 @@ fn typed_to_raw() {
             timestamp: 69420
         }
         .to_raw(),
-        RawBGBCommand {
+        RawBgbCommand {
             b1: 104,
             b2: 42,
             b3: 0b10000011,
@@ -247,7 +247,7 @@ fn typed_to_raw() {
             timestamp: 1234567890
         }
         .to_raw(),
-        RawBGBCommand {
+        RawBgbCommand {
             b1: 104,
             b2: 180,
             b3: 0b10000101,
@@ -258,7 +258,7 @@ fn typed_to_raw() {
 
     assert_eq!(
         Sync2 { data: 254 }.to_raw(),
-        RawBGBCommand {
+        RawBgbCommand {
             b1: 105,
             b2: 254,
             b3: 0x80,
@@ -271,7 +271,7 @@ fn typed_to_raw() {
     // so don't test/guarantee them
     {
         let actual = Sync3Response.to_raw();
-        let expected = RawBGBCommand {
+        let expected = RawBgbCommand {
             b1: 106,
             b2: 1,
             b3: 0,
@@ -287,7 +287,7 @@ fn typed_to_raw() {
             timestamp: 88888888,
         }
         .to_raw();
-        let expected = RawBGBCommand {
+        let expected = RawBgbCommand {
             b1: 106,
             b2: 0,
             b3: 0,
@@ -307,7 +307,7 @@ fn typed_to_raw() {
             support_reconnect: false,
         }
         .to_raw(),
-        RawBGBCommand {
+        RawBgbCommand {
             b1: 108,
             b2: 0x01,
             b3: 0,
@@ -323,7 +323,7 @@ fn typed_to_raw() {
             support_reconnect: false,
         }
         .to_raw(),
-        RawBGBCommand {
+        RawBgbCommand {
             b1: 108,
             b2: 0x02,
             b3: 0,
@@ -339,7 +339,7 @@ fn typed_to_raw() {
             support_reconnect: true,
         }
         .to_raw(),
-        RawBGBCommand {
+        RawBgbCommand {
             b1: 108,
             b2: 0x04,
             b3: 0,
@@ -350,7 +350,7 @@ fn typed_to_raw() {
 
     assert_eq!(
         WantDisconnect.to_raw(),
-        RawBGBCommand {
+        RawBgbCommand {
             b1: 109,
             b2: 0,
             b3: 0,
@@ -363,7 +363,7 @@ fn typed_to_raw() {
 #[test]
 fn typed_from_raw() -> Result<(), &'static str> {
     assert_eq!(
-        TypedBGBCommand::from_raw(&RawBGBCommand {
+        TypedBgbCommand::from_raw(&RawBgbCommand {
             b1: 1,
             b2: 1,
             b3: 4,
@@ -374,7 +374,7 @@ fn typed_from_raw() -> Result<(), &'static str> {
     );
 
     assert_eq!(
-        TypedBGBCommand::from_raw(&RawBGBCommand {
+        TypedBgbCommand::from_raw(&RawBgbCommand {
             b1: 1,
             b2: 2,
             b3: 3,
@@ -385,7 +385,7 @@ fn typed_from_raw() -> Result<(), &'static str> {
     );
 
     assert_eq!(
-        TypedBGBCommand::from_raw(&RawBGBCommand {
+        TypedBgbCommand::from_raw(&RawBgbCommand {
             b1: 101,
             b2: 0b1_101,
             b3: 0,
@@ -399,7 +399,7 @@ fn typed_from_raw() -> Result<(), &'static str> {
     );
 
     assert_eq!(
-        TypedBGBCommand::from_raw(&RawBGBCommand {
+        TypedBgbCommand::from_raw(&RawBgbCommand {
             b1: 101,
             b2: 0b0_011,
             b3: 0,
@@ -413,7 +413,7 @@ fn typed_from_raw() -> Result<(), &'static str> {
     );
 
     assert_eq!(
-        TypedBGBCommand::from_raw(&RawBGBCommand {
+        TypedBgbCommand::from_raw(&RawBgbCommand {
             b1: 104,
             b2: 42,
             b3: 0b10000011,
@@ -429,7 +429,7 @@ fn typed_from_raw() -> Result<(), &'static str> {
     );
 
     assert_eq!(
-        TypedBGBCommand::from_raw(&RawBGBCommand {
+        TypedBgbCommand::from_raw(&RawBgbCommand {
             b1: 104,
             b2: 180,
             b3: 0b10000101,
@@ -445,7 +445,7 @@ fn typed_from_raw() -> Result<(), &'static str> {
     );
 
     assert_eq!(
-        TypedBGBCommand::from_raw(&RawBGBCommand {
+        TypedBgbCommand::from_raw(&RawBgbCommand {
             b1: 105,
             b2: 254,
             b3: 0x80,
@@ -456,7 +456,7 @@ fn typed_from_raw() -> Result<(), &'static str> {
     );
 
     assert_eq!(
-        TypedBGBCommand::from_raw(&RawBGBCommand {
+        TypedBgbCommand::from_raw(&RawBgbCommand {
             b1: 106,
             b2: 1,
             b3: 0,
@@ -467,7 +467,7 @@ fn typed_from_raw() -> Result<(), &'static str> {
     );
 
     assert_eq!(
-        TypedBGBCommand::from_raw(&RawBGBCommand {
+        TypedBgbCommand::from_raw(&RawBgbCommand {
             b1: 106,
             b2: 0,
             b3: 0,
@@ -479,7 +479,7 @@ fn typed_from_raw() -> Result<(), &'static str> {
         }
     );
 
-    if let Err(msg) = TypedBGBCommand::from_raw(&RawBGBCommand {
+    if let Err(msg) = TypedBgbCommand::from_raw(&RawBgbCommand {
         b1: 106,
         b2: 106,
         b3: 0,
@@ -492,7 +492,7 @@ fn typed_from_raw() -> Result<(), &'static str> {
     }
 
     assert_eq!(
-        TypedBGBCommand::from_raw(&RawBGBCommand {
+        TypedBgbCommand::from_raw(&RawBgbCommand {
             b1: 108,
             b2: 0x01,
             b3: 0,
@@ -507,7 +507,7 @@ fn typed_from_raw() -> Result<(), &'static str> {
     );
 
     assert_eq!(
-        TypedBGBCommand::from_raw(&RawBGBCommand {
+        TypedBgbCommand::from_raw(&RawBgbCommand {
             b1: 108,
             b2: 0x02,
             b3: 0,
@@ -522,7 +522,7 @@ fn typed_from_raw() -> Result<(), &'static str> {
     );
 
     assert_eq!(
-        TypedBGBCommand::from_raw(&RawBGBCommand {
+        TypedBgbCommand::from_raw(&RawBgbCommand {
             b1: 108,
             b2: 0x04,
             b3: 0,
@@ -537,7 +537,7 @@ fn typed_from_raw() -> Result<(), &'static str> {
     );
 
     assert_eq!(
-        TypedBGBCommand::from_raw(&RawBGBCommand {
+        TypedBgbCommand::from_raw(&RawBgbCommand {
             b1: 109,
             b2: 0,
             b3: 0,
@@ -547,7 +547,7 @@ fn typed_from_raw() -> Result<(), &'static str> {
         WantDisconnect
     );
 
-    if let Err(_) = TypedBGBCommand::from_raw(&RawBGBCommand {
+    if let Err(_) = TypedBgbCommand::from_raw(&RawBgbCommand {
         b1: 246,
         b2: 0,
         b3: 0,
