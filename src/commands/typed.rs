@@ -1,4 +1,6 @@
 use super::*;
+use std::error::Error;
+use std::fmt;
 use TypedBgbCommand::*;
 
 /// Particular commands and their relevant data.
@@ -124,11 +126,11 @@ impl TypedBgbCommand {
     }
 
     /// Reads the command data from the raw fields.
-    /// 
+    ///
     /// In most cases, this will accept malformed input and either ignore it or pass it along.
     /// The exceptions are if `b1` is not recognized as a valid command type or if the `b2`
     /// field of a `sync3` command is not recognized.
-    pub fn from_raw(raw: &RawBgbCommand) -> Result<TypedBgbCommand, &'static str> {
+    pub fn from_raw(raw: &RawBgbCommand) -> Result<TypedBgbCommand, CommandError> {
         let RawBgbCommand { b1, b2, b3, b4, i1 } = *raw;
         match b1 {
             1 => Ok(Version {
@@ -151,7 +153,7 @@ impl TypedBgbCommand {
                 } else if b2 == 0 {
                     Ok(Sync3Timestamp { timestamp: i1 })
                 } else {
-                    Err("invalid sync3 command")
+                    Err(CommandError::new(String::from("invalid sync3 command")))
                 }
             }
             108 => Ok(Status {
@@ -160,12 +162,12 @@ impl TypedBgbCommand {
                 support_reconnect: b2 & (1 << 2) > 0,
             }),
             109 => Ok(WantDisconnect),
-            _ => Err("invalid command number"),
+            _ => Err(CommandError::new(String::from("invalid command number"))),
         }
     }
 
     /// Read the provided buffer directly as a command.
-    pub fn deserialize(bytes: &[u8; 8]) -> Result<TypedBgbCommand, &'static str> {
+    pub fn deserialize(bytes: &[u8; 8]) -> Result<TypedBgbCommand, CommandError> {
         TypedBgbCommand::from_raw(&RawBgbCommand::deserialize(bytes))
     }
 }
@@ -175,3 +177,22 @@ impl BgbCommand for TypedBgbCommand {
         self.to_raw().serialize()
     }
 }
+
+#[derive(Debug)]
+pub struct CommandError {
+    msg: String,
+}
+
+impl CommandError {
+    fn new(msg: String) -> CommandError {
+        CommandError { msg }
+    }
+}
+
+impl fmt::Display for CommandError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.write_str(&self.msg)
+    }
+}
+
+impl Error for CommandError {}

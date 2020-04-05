@@ -3,6 +3,7 @@ use std::io;
 use std::io::{Read, Write};
 use std::net::{TcpStream, ToSocketAddrs};
 
+#[derive(Debug)]
 pub struct BgbStream<T: Read + Write> {
     inner: T,
 }
@@ -29,7 +30,7 @@ impl<T: Read + Write> BgbStream<T> {
     pub fn read(&mut self) -> io::Result<TypedBgbCommand> {
         match TypedBgbCommand::from_raw(&self.read_raw()?) {
             Ok(result) => Ok(result),
-            Err(msg) => Err(io::Error::new(io::ErrorKind::InvalidData, msg)),
+            Err(e) => Err(io::Error::new(io::ErrorKind::InvalidData, e)),
         }
     }
 
@@ -74,7 +75,7 @@ impl BgbStream<TcpStream> {
         if let Some(raw) = self.maybe_read_raw()? {
             match TypedBgbCommand::from_raw(&raw) {
                 Ok(result) => Ok(Some(result)),
-                Err(msg) => Err(io::Error::new(io::ErrorKind::InvalidData, msg)),
+                Err(e) => Err(io::Error::new(io::ErrorKind::InvalidData, e)),
             }
         } else {
             Ok(None)

@@ -249,7 +249,7 @@ fn typed_to_raw() {
 }
 
 #[test]
-fn typed_from_raw() -> Result<(), &'static str> {
+fn typed_from_raw() -> Result<(), super::typed::CommandError> {
     use super::typed::TypedBgbCommand::*;
     use super::*;
 
@@ -370,14 +370,14 @@ fn typed_from_raw() -> Result<(), &'static str> {
         }
     );
 
-    if let Err(msg) = TypedBgbCommand::from_raw(&RawBgbCommand {
+    if let Err(e) = TypedBgbCommand::from_raw(&RawBgbCommand {
         b1: 106,
         b2: 106,
         b3: 0,
         b4: 0,
         i1: 0,
     }) {
-        assert!(msg.contains("sync3"));
+        assert!(format!("{}", e).contains("sync3"));
     } else {
         panic!("no error for invalid sync3");
     }

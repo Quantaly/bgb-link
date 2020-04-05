@@ -3,6 +3,7 @@ use crate::commands::*;
 use std::io;
 use std::net::{SocketAddr, TcpListener, TcpStream};
 
+#[derive(Debug)]
 pub struct BgbListener {
     inner: TcpListener,
 }
