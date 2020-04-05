@@ -1,6 +1,7 @@
 use super::*;
 use TypedBgbCommand::*;
 
+/// Particular commands and their relevant data.
 #[derive(Debug, PartialEq)]
 pub enum TypedBgbCommand {
     Version {
@@ -32,6 +33,7 @@ pub enum TypedBgbCommand {
 }
 
 impl TypedBgbCommand {
+    /// Places the command data in the proper fields for serialization.
     pub fn to_raw(&self) -> RawBgbCommand {
         match *self {
             Version { valid } => {
@@ -121,6 +123,11 @@ impl TypedBgbCommand {
         }
     }
 
+    /// Reads the command data from the raw fields.
+    /// 
+    /// In most cases, this will accept malformed input and either ignore it or pass it along.
+    /// The exceptions are if `b1` is not recognized as a valid command type or if the `b2`
+    /// field of a `sync3` command is not recognized.
     pub fn from_raw(raw: &RawBgbCommand) -> Result<TypedBgbCommand, &'static str> {
         let RawBgbCommand { b1, b2, b3, b4, i1 } = *raw;
         match b1 {
@@ -157,6 +164,7 @@ impl TypedBgbCommand {
         }
     }
 
+    /// Read the provided buffer directly as a command.
     pub fn deserialize(bytes: &[u8; 8]) -> Result<TypedBgbCommand, &'static str> {
         TypedBgbCommand::from_raw(&RawBgbCommand::deserialize(bytes))
     }
@@ -167,6 +175,3 @@ impl BgbCommand for TypedBgbCommand {
         self.to_raw().serialize()
     }
 }
-
-/* --- only tests below this point --- */
-

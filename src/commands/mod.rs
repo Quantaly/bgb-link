@@ -3,10 +3,13 @@ pub mod typed;
 
 pub use typed::TypedBgbCommand;
 
+/// A common trait for anything that can be serialized into the BGB format.
 pub trait BgbCommand {
+    /// Serializes the object into an 8-byte packet.
     fn serialize(&self) -> [u8; 8];
 }
 
+/// Contains the raw structure of a BGB command.
 #[derive(Debug, PartialEq)]
 pub struct RawBgbCommand {
     pub b1: u8,
@@ -33,6 +36,7 @@ impl BgbCommand for RawBgbCommand {
 }
 
 impl RawBgbCommand {
+    /// Reads the fields from a serialized BGB command.
     pub fn deserialize(bytes: &[u8; 8]) -> RawBgbCommand {
         let i1_bytes = [bytes[4], bytes[5], bytes[6], bytes[7]];
         RawBgbCommand {
